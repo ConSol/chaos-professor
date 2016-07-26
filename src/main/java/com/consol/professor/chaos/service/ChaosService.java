@@ -40,7 +40,7 @@ public class ChaosService {
      * @param time
      */
     public void createHeapUsage(Long size, Long time) {
-        log.info(String.format("Creating memory usage %s mb", size / 1024));
+        log.info(String.format("Creating memory usage %s mb for %s ms", size / 1024, time));
 
         Long currentSize = 0L;
         byte[] buffer = new byte[1024];
@@ -76,7 +76,7 @@ public class ChaosService {
      * @param keepAliveTime
      */
     public void createCpuUsage(Integer threads, Long keepAliveTime) {
-        log.info(String.format("Creating %s threads consuming CPU", threads));
+        log.info(String.format("Creating %s threads consuming CPU for %s ms", threads, keepAliveTime));
 
         ExecutorService executorService = new ThreadPoolExecutor(threads, threads, keepAliveTime, TimeUnit.MILLISECONDS, new ArrayBlockingQueue(threads, true));
         for (int i = 0; i < threads; i++) {

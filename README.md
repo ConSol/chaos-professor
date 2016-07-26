@@ -10,7 +10,8 @@ After cloning with git you can start the web application locally using Maven and
 
     mvn spring-boot:run
 
-The web application runs on port 8080 and exposes a REST API for calling some operations. Following 
+The web application runs on port 8080 by default. Open your browser and point to the application (http://localhost:8080). 
+The chaos professor web app exposes a REST API for calling some operations. Following 
 operations are supported:
 
 * Heap: Creates Java heap memory usage by loading random byte data into memory.
