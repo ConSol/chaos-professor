@@ -7,7 +7,7 @@
   <artifactId>chaos-professor</artifactId>
   <name>chaos-professor</name>
   <version>0.0.1</version>
-  <packaging>war</packaging>
+  <packaging>jar</packaging>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -30,6 +30,13 @@
           </profiles>
           <jvmArguments>-Dproject.home=${project.home}</jvmArguments>
         </configuration>
+        <executions>
+          <execution>
+              <goals>
+                  <goal>repackage</goal>
+              </goals>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
@@ -172,11 +179,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-validation</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-tomcat</artifactId>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
