@@ -4,9 +4,40 @@
   <title>Chaos professor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" type="text/css" href="webjars/bootstrap/3.0.3/css/bootstrap.min.css" />
+<style>
+.demo-container {
+        box-sizing: border-box;
+        width: 600px;
+        height: 300px;
+        padding: 20px 15px 15px 15px;
+        border: 1px solid #ddd;
+        background: #fff;
+        background: linear-gradient(#f6f6f6 0, #fff 50px);
+        background: -o-linear-gradient(#f6f6f6 0, #fff 50px);
+        background: -ms-linear-gradient(#f6f6f6 0, #fff 50px);
+        background: -moz-linear-gradient(#f6f6f6 0, #fff 50px);
+        background: -webkit-linear-gradient(#f6f6f6 0, #fff 50px);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        -o-box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        -ms-box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        -moz-box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        -webkit-box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.demo-placeholder {
+        width: 100%;
+        height: 100%;
+        font-size: 14px;
+        line-height: 1.2em;
+}
+
+</style>
 </head>
 <body>
   <script type="text/javascript" src="webjars/jquery/2.0.3/jquery.min.js"></script>
+  <script type="text/javascript" src="webjars/flot/0.8.3/jquery.flot.js"></script>
+  <script type="text/javascript" src="webjars/flot/0.8.3/jquery.flot.time.js"></script>
+
 
   <div class="container">
     <h1>Chaos professor</h1>
@@ -22,6 +53,9 @@
         <p><a href="/jolokia/read/java.lang:type=Memory/HeapMemoryUsage" target="_blank">http://professor/jolokia/read/java.lang:type=Memory/HeapMemoryUsage</a></p>
         <p><a href="/jolokia/read/java.lang:type=OperatingSystem/ProcessCpuLoad" target="_blank">http://professor/jolokia/read/java.lang:type=OperatingSystem/ProcessCpuLoad</a></p>
         <p><a href="/jolokia/exec/java.lang:type=Memory/gc" target="_blank">http://professor/jolokia/exec/java.lang:type=Memory/gc</a></p>
+<div class="demo-container">
+        <div id="placeholder" class="demo-placeholder"></div>
+</div>
       </div>
       <div class="col-sm-6">
         <center>
@@ -36,5 +70,96 @@
 
 
   <script type="text/javascript" src="webjars/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+<script type="text/javascript" >
+jQuery(document).ready(function(){
+        var options = {
+                lines: {
+                        show: true
+                },
+                points: {
+                        show: false
+                },
+                xaxis: {
+                        mode: "time"
+                }
+                ,yaxes: [
+                        {position: "left", color: "rgb(0,255,0)", ticks: 5, tickLength: 20},
+                        {tickLength: 20, position: "right", ticks: 5, tickColor: "blue", max: 1}
+                ]
+                ,legend: { position: "nw" }
+        };
+
+        var heap_used = {
+                label: "Heap Usage",
+                data: [],
+                yaxis: 1,
+                color: "rgba(0,255,0,0.2)",
+                lines: {
+                  fillColor: "rgba(0,255,0,0.6)",
+                  fill: 1
+                }
+        };
+        var heap_max = {
+                label: "Heap Max",
+                data: [],
+                yaxis: 1,
+                color: "rgb(255,0,0)",
+                lines: {
+                  fillColor: "rgba(255,0,0,0.2)",
+                  fill: 1
+                }
+        };
+
+        var load_data = {
+                label: "System Load",
+                data: [],
+                yaxis: 2,
+                color: "blue",
+        };
+
+        $.plot("#placeholder", [heap_used, load_data], options);
+
+        function fetchData() {
+
+                function on_heap_received(beandata) {
+                        heap_used.data.push([ (new Date()).getTime(), beandata.value.used / (1024**2) ])
+                        heap_max.data.push([ (new Date()).getTime(), beandata.value.max / (1024**2) ])
+                        options.yaxes[0].max = (beandata.value.max/(1024**2)) * 1.1
+                        if(heap_used.data.length > 60*3) {
+                                heap_used.data = heap_used.data.slice(heap_used.data.length - 60*3, heap_used.data.length);
+                                heap_max.data = heap_max.data.slice(heap_max.data.length - 60*3, heap_max.data.length);
+                        }
+                        jQuery("#placeholder").plot([heap_max, heap_used, load_data], options);
+                }
+                function on_load_received(beandata) {
+                        load_data.data.push([ (new Date()).getTime(), beandata.value ])
+                        if(load_data.data.length > 60*3) {
+                                load_data.data = load_data.data.slice(load_data.data.length - 60*3, load_data.data.length);
+                        }
+                }
+
+                // Normally we call the same URL - a script connected to a
+                // database - but in this case we only have static example
+                // files, so we need to modify the URL.
+
+                jQuery.ajax({
+                        url: "/jolokia/read/java.lang:type=OperatingSystem/ProcessCpuLoad",
+                        type: "GET",
+                        dataType: "json",
+                        success: on_load_received
+                });
+                jQuery.ajax({
+                        url: "/jolokia/read/java.lang:type=Memory/HeapMemoryUsage",
+                        type: "GET",
+                        dataType: "json",
+                        success: on_heap_received
+                });
+
+                setTimeout(fetchData, 300);
+        }
+
+        setTimeout(fetchData, 300);
+});
+</script>
 </body>
 </html>

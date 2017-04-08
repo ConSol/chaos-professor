@@ -132,6 +132,12 @@
       </dependency>
 
       <dependency>
+        <groupId>org.webjars.bower</groupId>
+        <artifactId>flot</artifactId>
+        <version>0.8.3</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>
@@ -199,6 +205,10 @@
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>jquery</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars.bower</groupId>
+      <artifactId>flot</artifactId>
     </dependency>
 
     <dependency>
